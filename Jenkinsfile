@@ -1,57 +1,32 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = "calculadora-backend"
-        CONTAINER_NAME = "calculadora-backend"
-    }
-
     stages {
 
         stage('Checkout') {
             steps {
-                echo '📥 Clonando repositorio backend'
-                checkout scm
+                git branch: 'develop',
+                    url: 'http://host.docker.internal:3000/tu_usuario/calculadora-backend.git'
             }
         }
 
-        stage('Build JAR (Maven Docker)') {
+        stage('Build JAR') {
             steps {
-                echo '⚙️ Compilando backend con Maven usando Docker'
-                sh '''
-                docker run --rm \
-                  -v "$PWD":/app \
-                  -w /app \
-                  maven:3.9.9-eclipse-temurin-21 \
-                  mvn clean package -DskipTests
-                '''
+                sh 'mvn clean package -DskipTests'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                echo '🐳 Construyendo imagen Docker'
-                sh "docker build -t ${IMAGE_NAME} ."
+                sh 'docker build -t calculadora-backend:latest .'
             }
         }
 
-        stage('Deploy Backend') {
+        stage('Deploy') {
             steps {
-                echo '🚀 Desplegando backend'
-                sh '''
-                docker compose down
-                docker compose up -d
-                '''
+                sh 'docker compose down'
+                sh 'docker compose up -d'
             }
-        }
-    }
-
-    post {
-        success {
-            echo '✅ Backend desplegado correctamente'
-        }
-        failure {
-            echo '❌ Error en el pipeline del backend'
         }
     }
 }
