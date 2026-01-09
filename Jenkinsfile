@@ -5,28 +5,49 @@ pipeline {
 
         stage('Checkout') {
             steps {
+                echo '📥 Clonando repositorio'
                 git branch: 'develop',
-                    url: 'http://host.docker.internal:3000/tu_usuario/calculadora-backend.git'
+                    url: 'https://github.com/kamilozzzXD/calculadora-backend.git'
             }
         }
 
-        stage('Build JAR') {
+        stage('Build JAR (Maven)') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                echo '⚙️ Compilando backend'
+                sh '''
+                  cd backend
+                  mvn clean package -DskipTests
+                '''
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t calculadora-backend:latest .'
+                echo '🐳 Construyendo imagen Docker'
+                sh '''
+                  cd backend
+                  docker build -t calculadora-backend:latest .
+                '''
             }
         }
 
         stage('Deploy') {
             steps {
-                sh 'docker compose down'
-                sh 'docker compose up -d'
+                echo '🚀 Desplegando backend'
+                sh '''
+                  docker compose down
+                  docker compose up -d
+                '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Backend desplegado correctamente'
+        }
+        failure {
+            echo '❌ Error en el pipeline del backend'
         }
     }
 }
