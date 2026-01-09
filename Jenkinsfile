@@ -5,6 +5,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
+                echo '📥 Clonando repositorio backend'
                 git branch: 'develop',
                     url: 'https://github.com/kamilozzzXD/calculadora-backend.git'
             }
@@ -21,8 +22,8 @@ pipeline {
             steps {
                 echo '🚀 Desplegando backend'
                 sh '''
-                  docker compose down
-                  docker compose up -d
+                  docker-compose down
+                  docker-compose up -d
                 '''
             }
         }
@@ -30,10 +31,10 @@ pipeline {
 
     post {
         success {
-            echo '✅ Pipeline ejecutado correctamente'
+            echo '✅ Backend desplegado correctamente'
         }
         failure {
-            echo '❌ Error en el pipeline'
+            echo '❌ Error en el pipeline del backend'
         }
     }
 }
