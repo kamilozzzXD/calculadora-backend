@@ -15,10 +15,16 @@ pipeline {
             }
         }
 
-        stage('Build JAR') {
+        stage('Build JAR (Maven Docker)') {
             steps {
-                echo '⚙️ Compilando backend con Maven'
-                sh 'mvn clean package -DskipTests'
+                echo '⚙️ Compilando backend con Maven usando Docker'
+                sh '''
+                docker run --rm \
+                  -v "$PWD":/app \
+                  -w /app \
+                  maven:3.9.9-eclipse-temurin-21 \
+                  mvn clean package -DskipTests
+                '''
             }
         }
 
