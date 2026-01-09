@@ -10,23 +10,16 @@ pipeline {
             }
         }
 
-        stage('Build JAR') {
-            steps {
-                echo '⚙️ Compilando backend con Maven'
-                sh 'mvn clean package -DskipTests'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
-                echo '🐳 Construyendo imagen Docker'
+                echo '🐳 Construyendo imagen Docker (incluye Maven)'
                 sh 'docker build -t calculadora-backend:latest .'
             }
         }
 
         stage('Deploy') {
             steps {
-                echo '🚀 Desplegando aplicación'
+                echo '🚀 Desplegando backend'
                 sh '''
                   docker compose down
                   docker compose up -d
@@ -36,11 +29,11 @@ pipeline {
     }
 
     post {
-        failure {
-            echo '❌ Error en el pipeline del backend'
-        }
         success {
             echo '✅ Pipeline ejecutado correctamente'
+        }
+        failure {
+            echo '❌ Error en el pipeline'
         }
     }
 }
