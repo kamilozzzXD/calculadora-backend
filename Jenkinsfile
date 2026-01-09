@@ -13,7 +13,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                echo '🐳 Construyendo imagen Docker (incluye Maven)'
+                echo '🐳 Construyendo imagen Docker'
                 sh 'docker build -t calculadora-backend:latest .'
             }
         }
@@ -22,8 +22,13 @@ pipeline {
             steps {
                 echo '🚀 Desplegando backend'
                 sh '''
-                  docker-compose down
-                  docker-compose up -d
+                  docker stop calculadora-backend || true
+                  docker rm calculadora-backend || true
+
+                  docker run -d \
+                    --name calculadora-backend \
+                    -p 8080:8080 \
+                    calculadora-backend:latest
                 '''
             }
         }
